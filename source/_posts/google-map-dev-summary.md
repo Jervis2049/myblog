@@ -31,7 +31,29 @@ const googleMap = new google.maps.Map(mapElem, {
     gestureHandling: "greedy", //不用按住Ctrl+鼠标滚轮，只需滚轮就可以缩放地图
     center: { lat: -34.397, lng: 150.644 },//中心点
 });
+```
+获取当前位置。浏览器左上方会出现一个会话框，询问是否同意获取，成功则可获取到当前的经纬度坐标。
+```js
+navigator.geolocation.getCurrentPosition(position=> {
+  console.log("getCurrentPosition:success", position)
+}, error=> {
+  console.log("getCurrentPosition:error", error)
+}, { maximumAge: 60000, timeout: 5000, enableHighAccuracy: true });
 
+```
+位置的解析与反解析。传递`location`参数，可以获得address；传递`address`参数，可以获得经纬度。
+```js
+const getAddressByGoogle = callback => {
+  var geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ 'location': this.map.getCenter() },  (results, status)=> {
+    if (status == google.maps.GeocoderStatus.OK) {
+      console.log('解析结果：', results[0].formatted_address);
+      callback && callback(results);
+    } else {
+      console.log('Geocode was not successful for the following reason: ' + status);
+    }
+  });
+}
 ```
 添加marker
 ```js
@@ -103,15 +125,15 @@ const markerPop = data =>{
 }
 ```
 
-（上述效果图）点击左侧列表，点位到当前的目标，并且让其处在地图正中心。
+（上述效果图）点击左侧列表，定位到当前的目标，并且让其处在地图正中心。
 ```js
 const setMarkerCenter = index =>{
-    let curMarker = arrMarkers[index];
-    googleMap.setCenter(curMarker.getPosition());
-},
+  let curMarker = arrMarkers[index];
+  googleMap.setCenter(curMarker.getPosition());
+}
 ```
 
-点击地标出现的弹框里有个`Get driving direction`按钮，点击它会跳转到指定地点。
+点击跳转到指定地点
 ```js
 /**@todo 点击跳转目的地
  * @param saddr 出发点地址
